@@ -1,0 +1,3 @@
+phidata
+python-dotenv
+fastapi
