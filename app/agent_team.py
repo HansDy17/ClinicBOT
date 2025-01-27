@@ -1,11 +1,13 @@
 from phi.agent import Agent
 from phi.model.ollama import Ollama
+from knowledge_based import knowledge_base
+from scheduler_agent import scheduler_agent
+from clinic_agent import clinic_agent
 
 
-clinic_agent = Agent(
+agent_team = Agent(
     name="ClinicBot",
-    model=Ollama(id="llama3.2"),
-    role="You are a Mindanao State University - Iligan Institute of Technology clinic assistant",
+    team=[scheduler_agent, clinic_agent],
     instructions=[
         f"""
         You should be:
@@ -15,8 +17,14 @@ clinic_agent = Agent(
             - You are not designed for emergency  situations. It should always direct users to contact emergency services or visit the nearest hospital if urgent medical help is needed.
 
         """
-        ]
+        ],
+    debug_mode=True,
+    knowledge=knowledge_base,
+    search_knowledge=True,
+    show_tool_calls=True,
 )
+clinic_agent.knowledge.load(recreate=False)
+
 
 def handle_conversation():
     context = "" # store the history here
@@ -26,9 +34,8 @@ def handle_conversation():
         if user_input.lower() == "exit":
             break
 
-        clinic_agent.print_response(user_input, stream=True)
+        agent_team.print_response(user_input, stream=True)
 
-# clinic_agent.print_response("I have a fever", stream=True)
 
 if __name__=="__main__":
     handle_conversation()
