@@ -1,11 +1,16 @@
 import mysql.connector
+from os import getenv
+from dotenv import load_dotenv
+
+load_dotenv()
+
 
 # Database configuration
 db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': '1234',
-    'database': 'clinic_bot'
+    'host': getenv('MYSQL_HOST'),
+    'user': getenv('MYSQL_USERNAME'),
+    'password': getenv('MYSQL_PASSWORD'),
+    'database': getenv('MYSQL_NAME')
 }
 
 def create_tables():
@@ -13,76 +18,56 @@ def create_tables():
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
-        # Create Customer table
+        # Create Patient table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Customer (
-                customer_id VARCHAR(500),
-                customer_name VARCHAR(20) NOT NULL,
-                customer_email VARCHAR(500) NOT NULL UNIQUE,
-                customer_password VARCHAR(500) NOT NULL,
-                customer_gender VARCHAR(6) NOT NULL,
-                customer_contact INT(10) NOT NULL,
-                PRIMARY KEY (customer_id)
+            CREATE TABLE IF NOT EXISTS Patient (
+                patient_id VARCHAR(500),
+                patient_name VARCHAR(100) NOT NULL,
+                patient_email VARCHAR(500) NOT NULL UNIQUE,
+                patient_gender VARCHAR(6) NOT NULL,
+                patient_contact INT(10) NOT NULL,
+                PRIMARY KEY (patient_id)
             )
         """)
 
-        # Create Restaurant table
+        # Create Doctor table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Restaurant (
-                resto_id VARCHAR(500) NOT NULL,
-                resto_name VARCHAR(55) NOT NULL,
-                resto_email VARCHAR(500) NOT NULL,
-                resto_pass VARCHAR(500) NOT NULL,
-                resto_address VARCHAR(500) NOT NULL,
-                opening_time TIME NOT NULL,
-                closing_time TIME NOT NULL,
-                resto_availseats INT(10) NOT NULL DEFAULT '0',
-                resto_category VARCHAR(50) NOT NULL ,
-                resto_contact INT(10) NULL DEFAULT '0',
-                insertion_time TIMESTAMP NOT NULL DEFAULT (now()),
-                PRIMARY KEY (resto_id),
-                UNIQUE INDEX resto_email (`resto_email`)
+            CREATE TABLE IF NOT EXISTS Doctor (
+                doctor_id VARCHAR(500) NOT NULL,
+                doctor_name VARCHAR(100) NOT NULL,
+                doctor_email VARCHAR(500) NOT NULL UNIQUE,
+                doctor_specialization VARCHAR(100) NOT NULL,
+                doctor_contact INT(10) NOT NULL,
+                doctor_avail_days VARCHAR(100) NOT NULL,
+                PRIMARY KEY (doctor_id)
             )
         """)
 
-        # Create Menu table
+        # Create Appointment table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Menu (
-                menu_id VARCHAR(500),
-                menu_food VARCHAR(5000) NOT NULL,
-                PRIMARY KEY (menu_id)
+            CREATE TABLE IF NOT EXISTS Appointment (
+                appointment_id VARCHAR(500),
+                appointment_date DATETIME NOT NULL,
+                appointment_time DATETIME NOT NULL,
+                appointment_status VARCHAR(50) NOT NULL,
+                appointment_start DATETIME NOT NULL,
+                appointment_end DATETIME NOT NULL,
+                patient_id VARCHAR(500),
+                doctor_id VARCHAR(500),
+                PRIMARY KEY (appointment_id),
+                FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
+                FOREIGN KEY (doctor_id) REFERENCES Doctor(doctor_id),
             )
         """)
 
-        # Create Reservation table
+        # Create Health Records table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Reservation (
-                reserv_id VARCHAR(500),
-                reserv_date DATETIME NOT NULL,
-                reserv_time DATETIME NOT NULL,
-                reserv_status VARCHAR(255) NOT NULL,
-                reserv_start DATETIME NOT NULL,
-                reserv_end DATETIME NOT NULL,
-                customer_id VARCHAR(500),
-                resto_id VARCHAR(50),
-                PRIMARY KEY (reserv_id),
-                FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
-                FOREIGN KEY (resto_id) REFERENCES Restaurant(resto_id)
-            )
-        """)
-
-        # Create Rating table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Rating (
-                rating_id VARCHAR(600),
-                rating_resto VARCHAR(50),
-                rating_comment TEXT,
-                rating_date DATETIME,
-                rating_time DATETIME,
-                customer_id VARCHAR(500),
-                PRIMARY KEY (rating_id),
-                FOREIGN KEY (rating_resto) REFERENCES Restaurant(resto_id),
-                FOREIGN KEY (customer_id) REFERENCES Customer(customer_id)
+            CREATE TABLE IF NOT EXISTS health_records (
+                record_id INT AUTO_INCREMENT PRIMARY KEY,
+                patient_id INT,
+                record_type VARCHAR(255),
+                record_data TEXT,
+                FOREIGN KEY (patient_id) REFERENCES Patient(patient_id)
             )
         """)
 
