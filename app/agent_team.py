@@ -3,7 +3,15 @@ from phi.model.ollama import Ollama
 from knowledge_based import knowledge_base
 from scheduler_agent import scheduler_agent
 from clinic_agent import clinic_agent
+from phi.storage.agent.sqlite import SqlAgentStorage
 
+
+storage = SqlAgentStorage(
+    # store sessions in the ai.sessions table
+    table_name="agent_sessions",
+    # db_file: Sqlite database file
+    db_file="tmp/data.db",
+)
 
 agent_team = Agent(
     name="ClinicBot",
@@ -22,6 +30,8 @@ agent_team = Agent(
     knowledge=knowledge_base,
     search_knowledge=True,
     show_tool_calls=True,
+    storage=storage,
+    read_chat_history=True,
 )
 clinic_agent.knowledge.load(recreate=False)
 
