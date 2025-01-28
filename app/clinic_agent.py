@@ -18,8 +18,5 @@ clinic_agent = Agent(
         """
         ],
     debug_mode=True,
-    # knowledge=knowledge_base,
-    # search_knowledge=True,
 )
-# clinic_agent.knowledge.load(recreate=False)
 
