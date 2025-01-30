@@ -13,68 +13,38 @@ db_config = {
     'database': getenv('MYSQL_NAME')
 }
 
-def create_tables():
+def initialize_database():
     try:
         connection = mysql.connector.connect(**db_config)
         cursor = connection.cursor()
 
-        # Create Patient table
+    # Create Users Table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Patient (
-                patient_id VARCHAR(500),
-                patient_name VARCHAR(100) NOT NULL,
-                patient_email VARCHAR(500) NOT NULL UNIQUE,
-                patient_gender VARCHAR(6) NOT NULL,
-                patient_contact INT(10) NOT NULL,
-                PRIMARY KEY (patient_id)
-            )
-        """)
-
-        # Create Doctor table
+        CREATE TABLE IF NOT EXISTS users (
+            user_id INT AUTO_INCREMENT PRIMARY KEY,
+            student_id VARCHAR(20) UNIQUE NOT NULL,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(100) UNIQUE NOT NULL,
+            phone VARCHAR(15) NOT NULL
+        )""")
+        
+        # Create Appointments Table
         cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Doctor (
-                doctor_id VARCHAR(500) NOT NULL,
-                doctor_name VARCHAR(100) NOT NULL,
-                doctor_email VARCHAR(500) NOT NULL UNIQUE,
-                doctor_specialization VARCHAR(100) NOT NULL,
-                doctor_contact INT(10) NOT NULL,
-                doctor_avail_days VARCHAR(100) NOT NULL,
-                PRIMARY KEY (doctor_id)
-            )
-        """)
+        CREATE TABLE IF NOT EXISTS appointments (
+            appointment_id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            appointment_date DATETIME NOT NULL,
+            purpose TEXT NOT NULL,
+            status ENUM('scheduled', 'cancelled', 'completed') DEFAULT 'scheduled',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(user_id)
+        )""")
+        
+        connection.commit()
+        cursor.close()
 
-        # Create Appointment table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS Appointment (
-                appointment_id VARCHAR(500),
-                appointment_date DATETIME NOT NULL,
-                appointment_time DATETIME NOT NULL,
-                appointment_status VARCHAR(50) NOT NULL,
-                appointment_start DATETIME NOT NULL,
-                appointment_end DATETIME NOT NULL,
-                patient_id VARCHAR(500),
-                doctor_id VARCHAR(500),
-                PRIMARY KEY (appointment_id),
-                FOREIGN KEY (patient_id) REFERENCES Patient(patient_id),
-                FOREIGN KEY (doctor_id) REFERENCES Doctor(doctor_id),
-            )
-        """)
-
-        # Create Health Records table
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS health_records (
-                record_id INT AUTO_INCREMENT PRIMARY KEY,
-                patient_id INT,
-                record_type VARCHAR(255),
-                record_data TEXT,
-                FOREIGN KEY (patient_id) REFERENCES Patient(patient_id)
-            )
-        """)
-
-        connection.close()
-        print("Tables created successfully")
     except Exception as e:
         print(f"Error creating tables: {str(e)}")
 
 if __name__ == "__main__":
-    create_tables()
+    initialize_database()
