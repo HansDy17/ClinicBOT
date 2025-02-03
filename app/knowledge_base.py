@@ -1,35 +1,35 @@
 from phi.knowledge.combined import CombinedKnowledgeBase
+from phi.knowledge.website import WebsiteKnowledgeBase
+from phi.knowledge.pdf import PDFKnowledgeBase, PDFReader
+from phi.knowledge.pdf import PDFUrlKnowledgeBase
 from phi.vectordb.pgvector import PgVector
-from phi.vectordb.sqlite import SQLiteVectorDB # trial
+
+db_url="postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
 
 # url_pdf_knowledge_base = PDFUrlKnowledgeBase(
 #     urls=["pdf_url"],
 #     # Table name: ai.pdf_documents
 #     vector_db=PgVector(
 #         table_name="pdf_documents",
-#         db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+#         db_url="postgresql+psycopg://root:1234@localhost:5432/knowledge_base",
 #     ),
 # )
 
 website_knowledge_base = WebsiteKnowledgeBase(
     urls=["https://www.msuiit.edu.ph/offices/clinic/index.php"],
     # Number of links to follow from the seed URLs
-    max_links=10,
+    max_links=20,
     # Table name: ai.website_documents
     vector_db=PgVector(
         table_name="website_documents",
-        db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+        db_url=db_url,
     ),
 )
 
 local_pdf_knowledge_base = PDFKnowledgeBase(
-    path="ClinicBOT/Selfcare-PDFs",
+    path="Selfcare-PDFs",
     # Table name: ai.pdf_documents
-    vector_db=PgVector(
-        table_name="pdf_documents", 
-        db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
-    ),
-    reader=PDFReader(chunk=True),
+
 )
 
 knowledge_base = CombinedKnowledgeBase(
@@ -41,6 +41,6 @@ knowledge_base = CombinedKnowledgeBase(
     vector_db=PgVector(
         # Table name: ai.combined_documents
         table_name="combined_documents",
-        db_url="postgresql+psycopg://ai:ai@localhost:5532/ai",
+        db_url=db_url,
     ),
 )
