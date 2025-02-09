@@ -11,7 +11,9 @@ body,html{
 	margin-bottom: auto;
 }
 .card{  
-	height: 500px;
+	height: auto;
+    min-height: 700px;
+    max-height: 90vh;
 	border-radius: 15px !important;
 	background-color: rgba(119, 4, 4, 0.692) !important;
 }
@@ -50,6 +52,8 @@ border-radius: 0 0 15px 15px !important;
 	color:white !important;
 	height: 60px !important;
 	overflow-y: auto;
+    resize: none; /* Prevents resizing */
+    max-height: 100px; /* Limits the input field’s height */
 }
 	.type_msg:focus{
 	 box-shadow:none !important;
@@ -128,11 +132,11 @@ border-radius: 0 0 15px 15px !important;
 	margin-left: 15px;
 }
 .user_info span{
-	font-size: 20px;
+	font-size: 26px;
 	color: white;
 }
 .user_info p{
-	font-size: 10px;
+	font-size: 14px;
 	color: rgba(255,255,255,0.6);
 }
 .video_cam{
@@ -162,6 +166,10 @@ border-radius: 0 0 15px 15px !important;
 	background-color: #58cc71;
 	padding: 10px;
 	position: relative;
+    max-width: 70%; /* Prevents message bubbles from stretching too wide */
+    word-wrap: break-word; /* Ensures long words wrap properly */
+    white-space: pre-wrap; /* Allows text to break into multiple lines */
+    overflow-wrap: break-word; /* Breaks long words */
 }
 .msg_time{
 	position: absolute;
