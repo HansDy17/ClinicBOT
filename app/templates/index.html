@@ -33,6 +33,45 @@
 
   <body>
     <div class="container-fluid h-100">
+
+      <!-- Sidebar Toggle Button -->
+      <input type="checkbox" id="custom-sidebar-toggle" class="custom-sidebar-checkbox">
+      <label for="custom-sidebar-toggle" class="custom-sidebar-toggle-label">
+          <span class="custom-sidebar-toggle-icon"></span>
+      </label>
+
+      <!-- Sidebar -->
+      <nav class="custom-sidebar">
+          <div class="custom-sidebar-header">
+              <a href="https://codepen.io" target="_blank" class="custom-sidebar-title">
+                  ClinicBOT
+              </a>
+          </div>
+
+          <ul class="custom-sidebar-menu">
+              <li><a href="#"><i class="fas fa-palette"></i> Your Work</a></li>
+              <li><a href="#"><i class="fas fa-images"></i> Assets</a></li>
+              <li><a href="#"><i class="fas fa-thumbtack"></i> Pinned Items</a></li>
+              <hr>
+              <li><a href="#"><i class="fas fa-heart"></i> Following</a></li>
+              <li><a href="#"><i class="fas fa-chart-line"></i> Trending</a></li>
+              <li><a href="#"><i class="fas fa-fire"></i> Challenges</a></li>
+              <li><a href="#"><i class="fas fa-magic"></i> Spark</a></li>
+              <hr>
+              <li><a href="#"><i class="fas fa-gem"></i> Codepen Pro</a></li>
+          </ul>
+
+          <div class="custom-sidebar-footer">
+              <div class="custom-sidebar-user">
+                  <img src="static/img/alab.png" alt="User Avatar">
+                  <div class="custom-sidebar-user-info">
+                      <a href="https://codepen.io/uahnbu/pens/public" target="_blank">Hans</a>
+                      <span>Admin</span>
+                  </div>
+              </div>
+          </div>
+      </nav>
+
       <div class="row justify-content-center h-100">
         <div class="col-md-10 col-xl-8 chat"> 
           <div class="card">
@@ -125,6 +164,14 @@
               alert("Error connecting to server.");
             },
           });
+        });
+
+      $("#custom-sidebar-toggle").change(function () {
+        if ($(this).is(":checked")) {
+            $(".chat").css("margin-left", "250px"); // Move right when sidebar opens
+        } else {
+            $(".chat").css("margin-left", "0"); // Reset when sidebar closes
+        }
         });
       });
     </script>     
