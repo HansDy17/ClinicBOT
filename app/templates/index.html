@@ -62,14 +62,19 @@
           </ul>
 
           <div class="custom-sidebar-footer">
-              <div class="custom-sidebar-user">
-                  <img src="static/img/alab.png" alt="User Avatar">
+            <div class="custom-sidebar-user">
+                <div class="custom-sidebar-user-container">
+                  <a href="#" target="_blank" class="custom-sidebar-user-link">
+                    <img src="static/img/alab.png" alt="User Avatar">
+                  </a>
                   <div class="custom-sidebar-user-info">
-                      <a href="https://codepen.io/uahnbu/pens/public" target="_blank">Hans</a>
+                      <a href="#" target="_blank">Hans</a>
                       <span>Admin</span>
                   </div>
-              </div>
-          </div>
+                </div>
+                <i class="fas fa-sign-out-alt logout-icon" onclick="logout()"></i>
+            </div>
+        </div>        
       </nav>
 
       <div class="row justify-content-center h-100">
@@ -123,6 +128,11 @@
         var messageBody = document.getElementById("messageFormeight");
         messageBody.scrollTop = messageBody.scrollHeight;
       }
+
+      function logout() {
+        // Redirect to logout page or clear session
+        window.location.href = "/logout"; // Update this URL based on your actual logout logic
+      }
     
       $(document).ready(function () {
         $("#messageArea").on("submit", function (event) {
@@ -139,7 +149,7 @@
             rawText +
             '<span class="msg_time_send">' +
             str_time +
-            '</span></div><div class="img_cont_msg"><img src="https://i.ibb.co/d5b84Xw/Untitled-design.png" class="rounded-circle user_img_msg"></div></div>';
+            '</span></div><div class="img_cont_msg"><img src="static/img/alab.png" alt="User Avatar" class="rounded-circle user_img_msg"></div></div>';
     
           $("#text").val("");
           $("#messageFormeight").append(userHtml);
