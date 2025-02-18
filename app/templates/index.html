@@ -161,13 +161,16 @@
             url: "/get",
             data: { msg: rawText },
             success: function (response) {
-              var botHtml =
-                '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="static/img/nurse.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' +
-                response +
-                '<span class="msg_time">' +
-                str_time +
-                "</span></div></div>";
-              $("#messageFormeight").append($.parseHTML(botHtml));
+            var botReply = typeof response === "object" ? response.response : response;  // Ensure it's text
+            
+            var botHtml =
+              '<div class="d-flex justify-content-start mb-4"><div class="img_cont_msg"><img src="static/img/nurse.png" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">' +
+              botReply +  // ✅ Corrected: Extract text from JSON object
+              '<span class="msg_time">' +
+              str_time +
+              "</span></div></div>";
+
+            $("#messageFormeight").append($.parseHTML(botHtml));
               scrollToBottom();
             },
             error: function () {
