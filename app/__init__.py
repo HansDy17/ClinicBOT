@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 #from flask_mysql_connector import MySQL
 # from flask_bootstrap import Bootstrap
-from app.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, SECRET_KEY, BOOTSTRAP_SERVE_LOCAL
+from app.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, SECRET_KEY, BOOTSTRAP_SERVE_LOCAL, OPENAI_API_KEY
 
 # mysql = MySQL()
 # bootstrap = Bootstrap()
@@ -16,6 +16,7 @@ def create_app(test_config=None):
         MYSQL_PASSWORD=DB_PASSWORD,
         MYSQL_DATABASE=DB_NAME,
         MYSQL_HOST=DB_HOST, 
+        OPENAI_API_KEY=OPENAI_API_KEY,
         BOOTSTRAP_SERVE_LOCAL=BOOTSTRAP_SERVE_LOCAL
     )
           
