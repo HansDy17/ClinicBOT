@@ -3,7 +3,6 @@ from phi.knowledge.website import WebsiteKnowledgeBase
 from phi.knowledge.pdf import PDFKnowledgeBase, PDFReader
 from phi.knowledge.pdf import PDFUrlKnowledgeBase
 from phi.vectordb.pgvector import PgVector
-from agno.embedder.ollama import OllamaEmbedder
 
 db_url="postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
 
@@ -19,12 +18,11 @@ db_url="postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
 website_knowledge_base = WebsiteKnowledgeBase(
     urls=["https://www.msuiit.edu.ph/offices/clinic/index.php"],
     # Number of links to follow from the seed URLs
-    max_links=20,
+    max_links=10,
     # Table name: ai.website_documents
     vector_db=PgVector(
         table_name="website_documents",
         db_url=db_url,
-        embedder=OllamaEmbedder(id="nomic-embed-text")
     ),
 )
 
