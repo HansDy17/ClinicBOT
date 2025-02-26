@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, jsonify, session
 import mysql.connector
 from datetime import datetime # add the date of student added
-from ..agents.agent_team import agent_team, clinic_agent
+# from ..agents.agent_team import agent_team, clinic_agent
 from ..agents.test4 import agent
 from flask_login import login_user, login_required, logout_user, current_user
 from flask_mail import Message
