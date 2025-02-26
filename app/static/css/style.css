@@ -412,3 +412,12 @@ border-radius: 0 0 15px 15px !important;
 .logout-icon:hover {
     color: #c82333;
 }
+
+.dropdown-menu {
+    text-align: center;
+}
+.dropdown-item-text {
+    font-weight: bold;
+}
+
+
