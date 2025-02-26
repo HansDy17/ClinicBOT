@@ -18,7 +18,7 @@ db_url="postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
 website_knowledge_base = WebsiteKnowledgeBase(
     urls=["https://www.msuiit.edu.ph/offices/clinic/index.php"],
     # Number of links to follow from the seed URLs
-    max_links=10,
+    max_links=0,
     # Table name: ai.website_documents
     vector_db=PgVector(
         table_name="website_documents",
@@ -29,7 +29,7 @@ website_knowledge_base = WebsiteKnowledgeBase(
 local_pdf_knowledge_base = PDFKnowledgeBase(
     path="Selfcare-PDFs",
     # Table name: ai.pdf_documents
-
+    table_name="pdf_documents",
 )
 
 knowledge_base = CombinedKnowledgeBase(

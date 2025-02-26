@@ -41,8 +41,7 @@ db_config = {
 # -*- Appointment Scheduling Toolkit
 class SchedulingTools(Toolkit):
     def __init__(self):
-        super().__init__(name="scheduling_tools")
-        self.register(self.get_db_connection)
+        super().__init__(name="scheduling_tools")        
         # self.register(self.parse_datetime)
         self.register(self.check_availability)
         self.register(self.create_appointment)
@@ -130,7 +129,7 @@ scheduler_agent = Agent(
 
 clinic_agent = Agent(
     model=Ollama(id="clinic_llama32"),
-    knowledge_base=local_pdf_knowledge_base,
+    # knowledge_base=local_pdf_knowledge_base,
     name="Clinic Advisor",
     role="Provide general clinic information and health guidance",
     instructions=[
@@ -174,23 +173,3 @@ agent_team = Agent(
 )
 agent_team.knowledge.load(recreate=False)
 
-
-def handle_conversation():
-    print("ClinicBOT: Welcome to University Health Services. How can I help you today?")
-    
-    while True:
-        try:
-            user_input = input("\nYou: ")
-            if user_input.lower() in ["exit", "quit"]:
-                break
-            
-            # Process input through agent team
-            response = agent_team.run(user_input)
-            print(f"\nClinicBOT: {response}")
-            
-        except KeyboardInterrupt:
-            print("\nSession ended.")
-            break
-
-if __name__ == "__main__":
-    handle_conversation()
