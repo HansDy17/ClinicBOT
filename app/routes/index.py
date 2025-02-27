@@ -29,9 +29,11 @@ def chatbot_response():
 
         response = agent.run(question)  # Get chatbot response
 
-        formatted_response = response.content.replace("\n", "<br>")  # Preserve newlines
+        formatted_response = response.content.lstrip()  # ✅ Removes leading newlines & spaces
+        formatted_response = formatted_response.replace("\n", "<br>")  # Preserve newlines in HTML
 
-        return jsonify({"response": formatted_response})  # Return as JSON
+        return jsonify({"response": formatted_response})  # Return formatted response
 
     except Exception as e:
         return jsonify({"response": f"Error: {str(e)}"}), 500
+
