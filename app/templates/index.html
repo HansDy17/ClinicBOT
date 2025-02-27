@@ -162,6 +162,7 @@
             data: { msg: rawText },
             success: function (response) {
               var botReply = typeof response === "object" ? response.response : response;  // Extract text
+              botReply = botReply.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
     
               var botHtml =
                   '<div class="d-flex justify-content-start mb-4">' +
