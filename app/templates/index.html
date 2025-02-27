@@ -50,6 +50,7 @@
 
           <ul class="custom-sidebar-menu">
               <li><a href="https://myiit.msuiit.edu.ph/accounts/getmyiit.php"><i class="fas fa-home"></i> Home</a></li>
+              <li><a href="#"> <i class="fas fa-bell"></i> Notifications</a></li>
               <li class="nav-item dropdown">
                 <a href="#"  id="appointmentDropdown" role="button" aria-haspopup="true" aria-expanded="false">
                     <i class="fas fa-calendar-alt"></i> Appointment
@@ -190,7 +191,7 @@
     
         // Update the dropdown when the page loads
         if (appointmentDate) {
-        $("#appointmentDetails").text("You have an appointment on " + appointmentDate + ".");
+        $("#appointmentDetails").text("You have an upcoming appointment on " + appointmentDate + ".");
         } else {
             $("#appointmentDetails").text("You have no scheduled appointment.");
         }
