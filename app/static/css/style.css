@@ -15,7 +15,7 @@ body,html{
     min-height: 700px;
     max-height: 90vh;
 	border-radius: 15px !important;
-	background-color: rgba(119, 4, 4, 0.692) !important;
+	background-color: #a41d21 !important;
 }
 .contacts_body{
 	padding:  0.75rem 0 !important;
@@ -232,9 +232,9 @@ border-radius: 0 0 15px 15px !important;
 
 :root {
     --sidebar-width: 250px;
-    --sidebar-bg: rgba(119, 4, 4, 0.692);
+    --sidebar-bg: #a41d21;
     --sidebar-text: #f5f6fa;
-    --sidebar-hover: rgba(119, 4, 4, 0.692);
+    --sidebar-hover: #a41d21;
     --sidebar-border: #8392a5;
 }
 
