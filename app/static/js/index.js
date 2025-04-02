@@ -62,14 +62,23 @@ if ($(this).is(":checked")) {
 }
 });
 
-var appointmentDate = "Monday, March 1 at 10 am"; // Replace this with a real API call
+var userId = "12345"; // Replace this with the actual user ID
 
-// Update the dropdown when the page loads
-if (appointmentDate) {
-$("#appointmentDetails").text("You have an upcoming appointment on " + appointmentDate + ".");
-} else {
-    $("#appointmentDetails").text("You have no scheduled appointment.");
-}
+// ✅ Fetch and Display Real Appointment Date
+$.ajax({
+    type: "GET",
+    url: "/existing_appointment/" + userId,  // 
+    success: function (response) {
+        if (response.appointment) {
+            $("#appointmentDetails").text(response.appointment);
+        } else {
+            $("#appointmentDetails").text("You have no scheduled appointment.");
+        }
+    },
+    error: function () {
+        $("#appointmentDetails").text("Unable to fetch appointment details.");
+    }
+});
 
 // Show the dropdown on hover
 $(".dropdown").hover(
