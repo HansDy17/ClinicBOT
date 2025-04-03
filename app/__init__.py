@@ -26,9 +26,11 @@ def create_app(test_config=None):
     from .routes.index import index_bp
     from .routes.auth import auth_bp
     from .routes.scheduler import appointment_bp
+    from .routes.admin import admin_bp
 
     app.register_blueprint(index_bp, url_prefix='/')
     app.register_blueprint(auth_bp, url_prefix='/')
     app.register_blueprint(appointment_bp, url_prefix='/')
+    app.register_blueprint(admin_bp, url_prefix='/')
 
     return app
