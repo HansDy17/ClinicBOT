@@ -7,7 +7,7 @@
   }
    
   body {
-    background-color: var(--redFire);
+    background: linear-gradient(to right, rgb(186, 145, 145), rgb(186, 145, 145), rgb(186, 145, 145));
     font-family: var(--fontAsap);
   }
   
@@ -78,6 +78,7 @@
     border-radius: 5px;
     background-color:#a41d21;;
     transition: background-color 300ms;
+    box-shadow: 5px 10px 10px rgba(7, 38, 42, 0.2);
   }
   
   .login > button:hover {

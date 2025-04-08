@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login Form</title>
-    <link rel="stylesheet" href="static/css/auth.css">
+    <title>{% block title %}Admin Login{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="static/css/admin_login.css">
+    <link rel="shortcut icon" href="static/img/iit-logo.png"/>
 </head>
 <body>
 
@@ -15,6 +16,6 @@
         <input type="password" placeholder="Password">
         <button>Login</button>
     </form>
-
+    {% block content %}{% endblock %}
 </body>
 </html>
