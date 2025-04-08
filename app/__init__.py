@@ -1,12 +1,10 @@
 from flask import Flask
 from flask_cors import CORS
-#from flask_mysql_connector import MySQL
-# from flask_bootstrap import Bootstrap
+from flask_mail import Mail, Message
 import os
-from app.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, SECRET_KEY, BOOTSTRAP_SERVE_LOCAL, OPENAI_API_KEY
+from app.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, SECRET_KEY, BOOTSTRAP_SERVE_LOCAL, OPENAI_API_KEY, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
-# mysql = MySQL()
-# bootstrap = Bootstrap()
+mail = Mail()
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -18,7 +16,15 @@ def create_app(test_config=None):
         MYSQL_DATABASE=DB_NAME,
         MYSQL_HOST=DB_HOST, 
         OPENAI_API_KEY=OPENAI_API_KEY,
-        BOOTSTRAP_SERVE_LOCAL=BOOTSTRAP_SERVE_LOCAL
+        BOOTSTRAP_SERVE_LOCAL=BOOTSTRAP_SERVE_LOCAL,
+        MAIL_SERVER=MAIL_SERVER,
+        MAIL_PORT=MAIL_PORT,
+        MAIL_USE_TLS=True,
+        MAIL_USE_SSL=False,
+        MAIL_DEBUG=True,
+        MAIL_USERNAME=MAIL_USERNAME,
+        MAIL_PASSWORD=MAIL_PASSWORD,
+        MAIL_DEFAULT_SENDER=MAIL_USERNAME,
     )
 
     app.config["SAML_PATH"] = os.path.join(os.path.dirname(os.path.abspath(__file__)), "saml")
