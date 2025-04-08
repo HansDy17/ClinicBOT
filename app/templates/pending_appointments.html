@@ -4,164 +4,209 @@
 
 {% block content %}
 <div class="table-container">
-	<div class="container-xl">
-		<div class="table-responsive">
-			<div class="table-wrapper">
-				<div class="table-title">
-					<div class="row">
-						<div class="col-sm-6">
-							<h2>Pending <b>Appointments</b></h2>
-						</div>
-						<div class="col-sm-6">
-							<a href="#addEmployeeModal" class="btn btn-success" data-toggle="modal"><i class="material-icons">&#xE147;</i> <span>Add New Employee</span></a>
-							<a href="#deleteEmployeeModal" class="btn btn-danger" data-toggle="modal"><i class="material-icons">&#xE15C;</i> <span>Delete</span></a>						
-						</div>
-					</div>
-				</div>
-				<table class="table table-striped table-hover">
-					<thead>
-						<tr>
-							<th>
-								<span class="custom-checkbox">
-									<input type="checkbox" id="selectAll">
-									<label for="selectAll"></label>
-								</span>
-							</th>
-							<th>Name</th>
-							<th>Email</th>
-							<th>Purpose</th>
-							<th>Date</th>
-							<th>Time</th>
-							<th>Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{% for appointment in appointments %}
-						<tr>
-							<td>
-								<span class="custom-checkbox">
-									<input type="checkbox" id="checkbox{{ loop.index }}" name="options[]" value="{{ appointment.id }}">
-									<label for="checkbox{{ loop.index }}"></label>
-								</span>
-							</td>
-							<td>{{ appointment.name }}</td>
-							<td>{{ appointment.email }}</td>
-							<td>{{ appointment.purpose }}</td>
-							<td>{{ appointment.date }}</td>
-							<td>{{ appointment.time }}</td>
-							<td>
-								<a href="#editEmployeeModal" class="edit" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Edit">&#xE254;</i></a>
-								<a href="#deleteEmployeeModal" class="delete" data-toggle="modal"><i class="material-icons" data-toggle="tooltip" title="Delete">&#xE872;</i></a>
-							</td>
-						</tr>
-						{% endfor %}
-					</tbody>
-				</table>
-				<div class="clearfix">
-					<div class="hint-text">Showing <b>{{ appointments|length }}</b> out of <b>{{ total_appointments }}</b> entries</div>
-					<ul class="pagination">
-						<li class="page-item disabled"><a href="#">Previous</a></li>
-						<li class="page-item"><a href="#" class="page-link">1</a></li>
-						<li class="page-item"><a href="#" class="page-link">2</a></li>
-						<li class="page-item active"><a href="#" class="page-link">3</a></li>
-						<li class="page-item"><a href="#" class="page-link">4</a></li>
-						<li class="page-item"><a href="#" class="page-link">5</a></li>
-						<li class="page-item"><a href="#" class="page-link">Next</a></li>
-					</ul>
-				</div>
-			</div>
-		</div>        
-	</div>
+    <div class="container-xl">
+        <div class="table-responsive">
+            <div class="table-wrapper">
+                <div class="table-title">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <h2><i class="fas fa-clock"></i> Pending <b>Appointments</b></h2>
+                            <p class="text-muted">Appointments awaiting approval</p>
+                        </div>
+                        <div class="col-sm-6 text-right">
+                            <div class="btn-group">
+                                <button class="btn btn-warning">
+                                    <i class="fas fa-hourglass-half"></i> {{ pending_count }} Pending
+                                </button>
+                                <button class="btn btn-primary" onclick="window.print()">
+                                    <i class="fas fa-print"></i> Print List
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-filter mb-3">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Search appointments..." id="searchInput">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            <div class="filter-group">
+                                <label>Filter by date:</label>
+                                <input type="date" class="form-control form-control-sm" id="dateFilter">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <table class="table table-striped table-hover" id="appointmentsTable">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th width="5%">ID</th>
+                            <th width="15%">Student</th>
+                            <th width="10%">Student ID</th>
+                            <th width="15%">Requested Date</th>
+                            <th width="10%">Time</th>
+                            <th width="20%">Purpose</th>
+                            <th width="15%">Requested On</th>
+                            <th width="10%">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appointment in appointments %}
+                        <tr>
+                            <td>{{ appointment.id }}</td>
+                            <td>
+                                {{ appointment.student_name }}<br>
+                                <small class="text-muted">{{ appointment.email }}</small>
+                            </td>
+                            <td>{{ appointment.student_id }}</td>
+                            <td>{{ appointment.date }}</td>
+                            <td>{{ appointment.time }}</td>
+                            <td>{{ appointment.purpose }}</td>
+                            <td>{{ appointment.requested_date }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#viewModal{{ appointment.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-success" data-toggle="modal" data-target="#approveModal{{ appointment.id }}">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" data-toggle="modal" data-target="#rejectModal{{ appointment.id }}">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                        <!-- View Modal -->
+                        <div class="modal fade" id="viewModal{{ appointment.id }}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-primary text-white">
+                                        <h5 class="modal-title">Appointment Details</h5>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Student Name:</div>
+                                            <div class="col-md-8">{{ appointment.student_name }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Student ID:</div>
+                                            <div class="col-md-8">{{ appointment.student_id }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Email:</div>
+                                            <div class="col-md-8">{{ appointment.email }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Appointment Date:</div>
+                                            <div class="col-md-8">{{ appointment.date }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Time:</div>
+                                            <div class="col-md-8">{{ appointment.time }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Purpose:</div>
+                                            <div class="col-md-8">{{ appointment.purpose }}</div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Status:</div>
+                                            <div class="col-md-8">
+                                                <span class="badge badge-warning">Pending Approval</span>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-4 font-weight-bold">Requested On:</div>
+                                            <div class="col-md-8">{{ appointment.requested_date }}</div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Approve Modal -->
+                        <div class="modal fade" id="approveModal{{ appointment.id }}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-success text-white">
+                                        <h5 class="modal-title">Approve Appointment</h5>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="/approve_appointment/{{ appointment.id }}" method="POST">
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to approve this appointment?</p>
+                                            <div class="form-group">
+                                                <label>Approval Notes (Optional)</label>
+                                                <textarea class="form-control" name="approval_notes" rows="3"></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-success">Approve</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Reject Modal -->
+                        <div class="modal fade" id="rejectModal{{ appointment.id }}" tabindex="-1" role="dialog">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header bg-danger text-white">
+                                        <h5 class="modal-title">Reject Appointment</h5>
+                                        <button type="button" class="close" data-dismiss="modal">
+                                            <span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <form action="/reject_appointment/{{ appointment.id }}" method="POST">
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to reject this appointment?</p>
+                                            <div class="form-group">
+                                                <label>Reason for Rejection</label>
+                                                <textarea class="form-control" name="rejection_reason" rows="3" required></textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                                            <button type="submit" class="btn btn-danger">Reject</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                
+                <div class="clearfix">
+                    <div class="hint-text">
+                        Showing <b>{{ appointments|length }}</b> pending appointments
+                    </div>
+                <!-- Include pagination here -->
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- Edit Modal HTML -->
-<div id="addEmployeeModal" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form>
-				<div class="modal-header">						
-					<h4 class="modal-title">Add Employee</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				</div>
-				<div class="modal-body">					
-					<div class="form-group">
-						<label>Name</label>
-						<input type="text" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Email</label>
-						<input type="email" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Address</label>
-						<textarea class="form-control" required></textarea>
-					</div>
-					<div class="form-group">
-						<label>Phone</label>
-						<input type="text" class="form-control" required>
-					</div>					
-				</div>
-				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-success" value="Add">
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-<!-- Edit Modal HTML -->
-<div id="editEmployeeModal" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form>
-				<div class="modal-header">						
-					<h4 class="modal-title">Edit Employee</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				</div>
-				<div class="modal-body">					
-					<div class="form-group">
-						<label>Name</label>
-						<input type="text" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Email</label>
-						<input type="email" class="form-control" required>
-					</div>
-					<div class="form-group">
-						<label>Address</label>
-						<textarea class="form-control" required></textarea>
-					</div>
-					<div class="form-group">
-						<label>Phone</label>
-						<input type="text" class="form-control" required>
-					</div>					
-				</div>
-				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-info" value="Save">
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
-<!-- Delete Modal HTML -->
-<div id="deleteEmployeeModal" class="modal fade">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<form>
-				<div class="modal-header">						
-					<h4 class="modal-title">Delete Employee</h4>
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				</div>
-				<div class="modal-body">					
-					<p>Are you sure you want to delete these Records?</p>
-					<p class="text-warning"><small>This action cannot be undone.</small></p>
-				</div>
-				<div class="modal-footer">
-					<input type="button" class="btn btn-default" data-dismiss="modal" value="Cancel">
-					<input type="submit" class="btn btn-danger" value="Delete">
-				</div>
-			</form>
-		</div>
-	</div>
-</div>
+
 {% endblock %}
