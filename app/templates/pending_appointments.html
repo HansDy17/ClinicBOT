@@ -11,7 +11,7 @@
                     <div class="row">
                         <div class="col-sm-6">
                             <h2><i class="fas fa-clock"></i> Pending <b>Appointments</b></h2>
-                            <p class="text-muted">Appointments awaiting approval</p>
+                            <p class="text-muted">Pending appointments awaiting approval</p>
                         </div>
                         <div class="col-sm-6 text-right">
                             <div class="btn-group">
@@ -65,14 +65,14 @@
                         <tr>
                             <td>{{ appointment.id }}</td>
                             <td>
-                                {{ appointment.student_name }}<br>
-                                <small class="text-muted">{{ appointment.email }}</small>
+                                {{ appointment.user_name }}<br>
+                                <small class="text-muted">{{ appointment.user_email }}</small>
                             </td>
-                            <td>{{ appointment.student_id }}</td>
-                            <td>{{ appointment.date }}</td>
-                            <td>{{ appointment.time }}</td>
+                            <td>{{ appointment.user_id }}</td>
+                            <td>{{ appointment.appointment_date }}</td>
+                            <td>{{ appointment.appointment_time }}</td>
                             <td>{{ appointment.purpose }}</td>
-                            <td>{{ appointment.requested_date }}</td>
+                            <td>{{ appointment.requested_at }}</td>
                             <td>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-sm btn-info" data-toggle="modal" data-target="#viewModal{{ appointment.id }}">
@@ -101,23 +101,23 @@
                                     <div class="modal-body">
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Student Name:</div>
-                                            <div class="col-md-8">{{ appointment.student_name }}</div>
+                                            <div class="col-md-8">{{ appointment.user_name }}</div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Student ID:</div>
-                                            <div class="col-md-8">{{ appointment.student_id }}</div>
+                                            <div class="col-md-8">{{ appointment.user_id }}</div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Email:</div>
-                                            <div class="col-md-8">{{ appointment.email }}</div>
+                                            <div class="col-md-8">{{ appointment.user_email }}</div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Appointment Date:</div>
-                                            <div class="col-md-8">{{ appointment.date }}</div>
+                                            <div class="col-md-8">{{ appointment.appointment_date }}</div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Time:</div>
-                                            <div class="col-md-8">{{ appointment.time }}</div>
+                                            <div class="col-md-8">{{ appointment.appointment_time }}</div>
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Purpose:</div>
@@ -131,7 +131,7 @@
                                         </div>
                                         <div class="row mb-3">
                                             <div class="col-md-4 font-weight-bold">Requested On:</div>
-                                            <div class="col-md-8">{{ appointment.requested_date }}</div>
+                                            <div class="col-md-8">{{ appointment.requested_at }}</div>
                                         </div>
                                     </div>
                                     <div class="modal-footer">
