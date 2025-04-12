@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, jsonify
 from datetime import timedelta, date
-from ..models import *
+from ..models.scheduler_models import Appointments
 import json
 
 appointment_bp = Blueprint('appointment_bp', __name__)
