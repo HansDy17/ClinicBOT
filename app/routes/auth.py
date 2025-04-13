@@ -1,13 +1,113 @@
 from flask import Flask, render_template, request, redirect, url_for, session, Blueprint, jsonify, make_response, current_app, flash
 from onelogin.saml2.auth import OneLogin_Saml2_Auth
 from onelogin.saml2.utils import OneLogin_Saml2_Utils
+from flask_login import login_user, logout_user, login_required, current_user
+from werkzeug.security import check_password_hash, generate_password_hash
+import logging
+from datetime import timedelta
 
 auth_bp = Blueprint('auth_bp', __name__)
 
-@auth_bp.route('/admin_login')
-def admin_login():
-    return render_template('admin_login.html')
+# Security enhancements
+def validate_login_input(username, password):
+    """Validate login input to prevent basic attacks"""
+    if not username or not password:
+        return False, "Username and password are required"
+    if len(username) > 50 or len(password) > 100:
+        return False, "Input too long"
+    return True, ""
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+@auth_bp.route('/login/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        try:
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '').strip()
+            
+            # Input validation
+            is_valid, message = validate_login_input(username, password)
+            if not is_valid:
+                flash(message, 'error')
+                return jsonify({'success': False, 'message': message}), 400
+            
+            # Get user data
+            user_data = User.get_user_by_username(username)
+            
+            if not user_data:
+                logger.warning(f"Login attempt for non-existent user: {username}")
+                flash('Invalid credentials', 'error')  # Generic message for security
+                return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+            
+            # Verify password
+            stored_password_hash = user_data['password_hash']
+            if not check_password_hash(stored_password_hash, password):
+                logger.warning(f"Failed login attempt for user: {username}")
+                flash('Invalid credentials', 'error')
+                return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+            
+            # Check if account is locked or needs other verification
+            if user_data.get('is_locked', False):
+                flash('Account is locked. Please contact support.', 'error')
+                return jsonify({'success': False, 'message': 'Account locked'}), 403
+            
+            # Create user session
+            user = User(user_data['id'])
+            session.permanent = True
+            auth_bp.session_lifetime = timedelta(minutes=30)  # Session timeout
+            session['loggedin'] = True
+            session['username'] = user_data['username']
+            session['user_id'] = user_data['id']
+            session['_fresh'] = True  # For Flask-Login
+            
+            login_user(user, remember=request.form.get('remember') == 'on')
+            
+            logger.info(f"User {username} logged in successfully")
+            flash('Login successful!', 'success')
+            return jsonify({
+                'success': True,
+                'redirect': url_for('admin_bp.pending_appointments')  # Redirect to dashboard after login
+            })
+            
+        except Exception as e:
+            logger.error(f"Error during login: {str(e)}", exc_info=True)
+            flash('An error occurred during login. Please try again.', 'error')
+            return jsonify({
+                'success': False, 
+                'message': 'An error occurred during login. Please try again.'
+            }), 500
+    
+    # GET request - show login form
+    if current_user.is_authenticated:
+        return redirect(url_for('admin_bp.pending_appointments'))
+    
+    return render_template("auth.html", user=current_user)
+
+@auth_bp.route('/logout')
+@login_required
+def logout():
+    try:
+        username = session.get('username', 'unknown')
+        logout_user()
+        session.clear()  # Clear all session data
+        logger.info(f"User {username} logged out successfully")
+        flash('You have been logged out successfully.', 'success')
+    except Exception as e:
+        logger.error(f"Error during logout: {str(e)}", exc_info=True)
+        flash('An error occurred during logout.', 'error')
+    
+    return redirect(url_for('auth_bp.login'))
+
+@auth_bp.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    # Implement password reset functionality
+    pass
+
+
+# SAML Authentication
 def init_saml_auth(req):
     """Initialize SAML Authentication using Flask's Config"""
     saml_path = current_app.config["SAML_PATH"]  # Access Flask config
@@ -149,9 +249,3 @@ def metadata():
     else:
         resp = make_response(", ".join(errors), 500)
     return resp
-
-# 🔹 Logout route
-@auth_bp.route('/logout/')
-def logout():
-    session.pop("user_email", None)
-    return redirect(url_for("auth_bp.index"))

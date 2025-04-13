@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Login | MyApp</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/iit-logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+    <script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="{{ url_for('static', filename='img/myiit.gif') }}" alt="Logo" class="logo">
+            <h1>Welcome Back</h1>
+            <p>Sign in to continue to your account</p>
+        </div>
+        
+        <form id="loginForm" method="POST" action="{{ url_for('auth_bp.login') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            
+            <!-- Flash messages -->
+            <div class="flash-messages">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Email or Username</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter your email or username" autocomplete="username">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Enter your password" autocomplete="current-password">
+                    </button>
+                </div>
+                <div class="forgot-password">
+                    <a href="{{ url_for('auth_bp.forgot_password') }}">Forgot password?</a>
+                </div>
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="remember" name="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            
+            <button type="submit" class="login-button" id="loginButton">
+                <span class="button-text">Sign In</span>
+                <span class="button-spinner">
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </button>
+            
+            <div class="login-footer">
+                <p>Don't have an account? <a href="#">Sign up</a></p>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
