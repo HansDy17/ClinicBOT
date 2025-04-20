@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 import json
 from flask_mail import Message
-from ..import mail
+from flask_login import UserMixin
 
 load_dotenv() 
 
@@ -19,23 +19,47 @@ class DatabaseManager:
             password=getenv('MYSQL_PASSWORD'),
             database=getenv('MYSQL_NAME')
         )
+class Admin(UserMixin):
+    def __init__(self, user_id=None, username=None):
+        self.id = user_id
+        self.username = username
+        self.db = DatabaseManager()
 
+    def get_id(self):
+        return str(self.id)
+    
+    def get_username(self):
+        return str(self.username)
+
+    def get_admin_data(self):
+        """Get all user data from database"""
+        if self.id:
+            query = "SELECT * FROM users WHERE id = %s"
+            result = self.db.execute_query(query, (self.id,))
+        elif self.username:
+            query = "SELECT * FROM users WHERE username = %s"
+            result = self.db.execute_query(query, (self.username,))
+        else:
+            return None
+        
+        return result[0] if result else None  
+    
+    @classmethod
+    def get_admin_data_by_username(cls, username):
+        """Fetch admin user data using user ID"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM admin_account WHERE username = %s", (username,))
+        result = cursor.fetchone()
+        cursor.close()
+        conn.close()
+
+        return result
 class Appointment:
     def __init__(self, appointment_data=None):
         """Initialize with appointment data dictionary"""
         if appointment_data:
             self.__dict__.update(appointment_data)
-
-    @staticmethod
-    def send_notification(email, subject, message):
-        """Send email notification using Flask-Mail"""
-        msg = Message(
-            subject,
-            sender=getenv('MAIL_USERNAME'),
-            recipients=[email]
-        )
-        msg.body = message
-        mail.send(msg)
 
     @classmethod
     def get_pending_appointments(cls):
@@ -45,7 +69,7 @@ class Appointment:
         
         cursor.execute("""
             SELECT * FROM appointments 
-            WHERE status = 'pending'
+            WHERE status = 'pending'   
             ORDER BY appointment_date DESC
         """)
         
@@ -63,7 +87,6 @@ class Appointment:
         cursor.execute("""
             SELECT * FROM appointments 
             WHERE status = 'approved'
-            AND appointment_date >= CURDATE()
             ORDER BY appointment_date ASC
         """)
         
@@ -73,10 +96,14 @@ class Appointment:
         return appointments
 
     @classmethod
-    def approve_appointment(cls, appointment_id, approved_by):
+    def approve_appointment(cls, appointment_id, approved_by, notes):
         """Admin approves an appointment"""
         conn = DatabaseManager.get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
+        # Get appointment details before deletion for notification
+        cursor.execute("SELECT * FROM appointments WHERE id = %s", (appointment_id,))
+        appointment = cls(cursor.fetchone())
         
         try:
             # Update appointment status
@@ -84,22 +111,12 @@ class Appointment:
                 UPDATE appointments 
                 SET status = 'approved', 
                     approved_by = %s,
+                    notes = %s,
                     approved_date = NOW()
                 WHERE id = %s
-            """, (approved_by, appointment_id))
-            
-            # Get appointment details for notification
-            cursor.execute("SELECT * FROM appointments WHERE id = %s", (appointment_id,))
-            appointment = cls(cursor.fetchone())
+            """, (approved_by, notes, appointment_id))
             
             conn.commit()
-            
-            # Send approval notification
-            cls.send_notification(
-                appointment.user_email,
-                "Appointment Approved",
-                f"Your appointment on {appointment.appointment_date} at {appointment.appointment_time} has been approved."
-            )
             
             return True
         except Exception as e:
@@ -114,31 +131,26 @@ class Appointment:
         """Admin rejects an appointment"""
         conn = DatabaseManager.get_db_connection()
         cursor = conn.cursor(dictionary=True)
+
+        # Get appointment details before deletion for notification
+        cursor.execute("SELECT * FROM appointments WHERE id = %s", (appointment_id,))
+        appointment = cls(cursor.fetchone())        
         
         try:
-            # Get appointment details before deletion for notification
-            cursor.execute("SELECT * FROM appointments WHERE id = %s", (appointment_id,))
-            appointment = cls(cursor.fetchone())
-            
             # Delete or mark as rejected based on your business logic
             cursor.execute("""
                 UPDATE appointments 
                 SET status = 'rejected',
-                    rejected_by = %s,
-                    rejected_reason = %s,
-                    rejected_date = NOW()
+                    approved_by = %s,
+                    rejection_reason = %s,
+                    approved_at = NOW()
                 WHERE id = %s
             """, (rejected_by, reason, appointment_id))
+
+            if cursor.rowcount == 0:  # Check if any row was updated
+                raise ValueError("Appointment not found or already processed")
             
             conn.commit()
-            
-            # Send rejection notification
-            cls.send_notification(
-                appointment.user_email,
-                "Appointment Rejected",
-                f"Your appointment request has been rejected. Reason: {reason}"
-            )
-            
             return True
         except Exception as e:
             conn.rollback()
@@ -172,13 +184,6 @@ class Appointment:
             """, (new_date, new_time, appointment_id))
             
             conn.commit()
-            
-            # Send reschedule notification
-            cls.send_notification(
-                original.user_email,
-                "Appointment Rescheduled",
-                f"Your appointment has been rescheduled to {new_date} at {new_time}"
-            )
             
             return True
         except Exception as e:

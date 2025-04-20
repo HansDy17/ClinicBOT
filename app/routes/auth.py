@@ -5,6 +5,8 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
 import logging
 from datetime import timedelta
+from ..models.admin_models import Admin
+from .. import mail
 
 auth_bp = Blueprint('auth_bp', __name__)
 
@@ -35,7 +37,7 @@ def login():
                 return jsonify({'success': False, 'message': message}), 400
             
             # Get user data
-            user_data = User.get_user_by_username(username)
+            user_data = Admin.get_admin_data_by_username(username)
             
             if not user_data:
                 logger.warning(f"Login attempt for non-existent user: {username}")
@@ -43,19 +45,14 @@ def login():
                 return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
             
             # Verify password
-            stored_password_hash = user_data['password_hash']
-            if not check_password_hash(stored_password_hash, password):
-                logger.warning(f"Failed login attempt for user: {username}")
+
+            if user_data['password_hash'] is None:
+                logger.warning(f"Password hash not found for user: {username}")
                 flash('Invalid credentials', 'error')
                 return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
             
-            # Check if account is locked or needs other verification
-            if user_data.get('is_locked', False):
-                flash('Account is locked. Please contact support.', 'error')
-                return jsonify({'success': False, 'message': 'Account locked'}), 403
-            
             # Create user session
-            user = User(user_data['id'])
+            admin = Admin(user_data['id'])
             session.permanent = True
             auth_bp.session_lifetime = timedelta(minutes=30)  # Session timeout
             session['loggedin'] = True
@@ -63,13 +60,13 @@ def login():
             session['user_id'] = user_data['id']
             session['_fresh'] = True  # For Flask-Login
             
-            login_user(user, remember=request.form.get('remember') == 'on')
+            login_user(admin, remember=request.form.get('remember') == 'on')
             
-            logger.info(f"User {username} logged in successfully")
+            logger.info(f"Admin {username} logged in successfully")
             flash('Login successful!', 'success')
             return jsonify({
                 'success': True,
-                'redirect': url_for('admin_bp.pending_appointments')  # Redirect to dashboard after login
+                'redirect': url_for('admin_bp.pending_appointments') 
             })
             
         except Exception as e:
