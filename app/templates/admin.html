@@ -40,12 +40,14 @@
                     <a href="#" target="_blank" class="custom-sidebar-user-link">
                         <img src="{{ url_for('static', filename='img/alab.png') }}" alt="User Avatar">
                     </a>
-                    <div class="custom-sidebar-user-info">
-                        <a href="#">Hans</a>
-                        <span>Admin</span>
+                    <div class="custom-sidebar-user-info">                
+                            <a href="#"> {{ admin.full_name }} </a>
+                            <span> {{ admin.role }} </span>
                     </div>
                 </div>
-                <i class="fas fa-sign-out-alt logout-icon" onclick="logout()"></i>
+                <a href="{{ url_for('auth_bp.logout') }}">
+                    <i class="fas fa-sign-out-alt logout-icon" ></i>
+                </a>
             </div>
         </div>
     </nav>
