@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Blueprint, jsonify
 from datetime import timedelta, date
 from ..models.scheduler_models import Appointments
+from flask_login import login_user, login_required, logout_user, current_user
+from ..models.admin_models import Admin
 import json
 
 appointment_bp = Blueprint('appointment_bp', __name__)
@@ -14,6 +16,11 @@ def available_slots():
 @appointment_bp.route('/existing_appointment/<string:user_id>', methods=['GET'])
 def get_existing_appointment(user_id):
     """Fetch a user's existing appointment details."""
+    id = getattr(current_user, 'id', None)
+    print(f"User Name: {id}")
+    user = Admin.get_user_data_by_user_id(id)
+    user_id = user['user_id']
+    print(user_id)
     
     appointment = Appointments.get_existing_appointment(user_id)
 
@@ -33,7 +40,7 @@ def get_existing_appointment(user_id):
             f"- Purpose: {appointment.get('purpose', 'N/A')}"
         )
 
-        return jsonify({"appointment": formatted_response})  # ✅ Return a string
+        return jsonify({"appointment": formatted_response}) 
     else:
         return jsonify({"message": "No active appointment found."})
     

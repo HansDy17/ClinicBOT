@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secure Login | MyApp</title>
+    <title>Admin Login | ClinicBOT</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/iit-logo.png') }}">
@@ -19,7 +19,6 @@
         </div>
         
         <form id="loginForm" method="POST" action="{{ url_for('auth_bp.login') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             
             <!-- Flash messages -->
             <div class="flash-messages">
@@ -50,7 +49,7 @@
                     </button>
                 </div>
                 <div class="forgot-password">
-                    <a href="{{ url_for('auth_bp.forgot_password') }}">Forgot password?</a>
+                    <a href="{{ url_for('auth_bp.signup') }}">Test account here!</a>
                 </div>
             </div>
             
@@ -59,12 +58,21 @@
                 <label for="remember">Remember me</label>
             </div>
             
+
+
             <button type="submit" class="login-button" id="loginButton">
                 <span class="button-text">Sign In</span>
                 <span class="button-spinner">
                     <i class="fas fa-spinner fa-spin"></i>
                 </span>
             </button>
+
+            <div class="oauth-providers">
+                <a href="{{ url_for('google.login') }}" class="google-login-button">
+                    <img src="{{ url_for('static', filename='img/Google-Symbol.png') }}">
+                    Login with Google
+                </a>
+            </div>
             
         </form>
     </div>

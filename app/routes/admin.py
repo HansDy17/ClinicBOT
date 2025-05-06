@@ -27,14 +27,13 @@ def active_appointments():
                          approved_count=len(appointments))
 
 @admin_bp.route('/approve_appointment/<int:appointment_id>', methods=['POST'])
+@login_required
 def approve_appointment(appointment_id):
-    # if 'admin_name' not in session:
-    #     flash('Unauthorized', 'danger')
-    #     return redirect(url_for('auth_bp.admin_login'))
-    
-    notes = request.form.get('approval_notes', 'No notes provided')
+    notes = request.form.get('approval_notes')
     try:
-        approved_by = session['admin_name']
+        admin = Admin.get_admin_data_by_username(session['username'])
+        approved_by = getattr(current_user, 'full_name', None) or current_user.username
+        print(approved_by)
         Appointment.approve_appointment(appointment_id, approved_by,notes)
         flash('Approved successfully', 'success')
     except Exception as e:
@@ -42,27 +41,82 @@ def approve_appointment(appointment_id):
     return redirect(url_for('admin_bp.pending_appointments'))
 
 @admin_bp.route('/reject_appointment/<int:appointment_id>', methods=['POST'])
+@login_required
 def reject_appointment(appointment_id):
-    # if 'admin_name' not in session:
-    #     flash('Unauthorized', 'danger')
-    #     return redirect(url_for('auth_bp.admin_login')) #Goods nani diri!
-    
-    reason = request.form.get('rejection_reason', 'No reason provided')
+    reason = request.form.get('rejection_reason')
     try:
-        rejected_by = session['admin_name']
+        admin = Admin.get_admin_data_by_username(session['username'])
+        rejected_by = getattr(current_user, 'full_name', None) or current_user.username
         Appointment.reject_appointment(appointment_id, rejected_by, reason)
         flash('Rejected successfully', 'success')
     except Exception as e:
         flash(f'Error: {str(e)}', 'danger')
     return redirect(url_for('admin_bp.pending_appointments'))
 
-def send_email(to, subject, body):
-    msg = Message(subject, sender="your@gmail.com", recipients=[to])
-    msg.body = body
-    mail.send(msg)
+@admin_bp.route('/cancel_appointment/<int:appointment_id>', methods=['POST'])
+@login_required
+def cancel_appointment(appointment_id):
+    reason = request.form.get('cancel_reason')
+    try:
+        admin = Admin.get_admin_data_by_username(session['username'])
+        cancelled_by = getattr(current_user, 'full_name', None) or current_user.username
+        Appointment.cancel_appointment(appointment_id, cancelled_by, reason)
+        flash('Cancelled successfully', 'success')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_bp.active_appointments'))
 
-# Example in a route
-@admin_bp.route("/approve_appointment/<email>")
-def approve(email):
-    send_email(email, "Approved!", "Your appointment is confirmed.")
-    return "Email sent!"
+@admin_bp.route('/reschedule_appointment/<int:appointment_id>', methods=['POST'])
+@login_required
+def reschedule_appointment(appointment_id):
+    new_date = request.form.get('new_date')
+    new_time = request.form.get('new_time')
+    reason = request.form.get('reschedule_reason')
+    try:
+        Appointment.reschedule_appointment(appointment_id, new_date, new_time, reason)
+        flash('Cancelled successfully', 'success')
+    except Exception as e:
+        flash(f'Error: {str(e)}', 'danger')
+    return redirect(url_for('admin_bp.active_appointments'))
+
+def send_action_email(recipient_email, action_type, appointment_details=None, admin_name=None):
+    try:
+        email_config = {
+            'approve': {
+                'subject': "Appointment Approved - MSU-IIT Clinic",
+                'template': 'emails/approve_appointment.html'
+            },
+            'reject': {
+                'subject': "Appointment Rejected - MSU-IIT Clinic",
+                'template': 'emails/reject_appointment.html'
+            },
+            'cancel': {
+                'subject': "Appointment Cancelled - MSU-IIT Clinic",
+                'template': 'emails/cancel_appointment.html'
+            },
+            'reschedule': {
+                'subject': "Appointment Rescheduled - MSU-IIT Clinic",
+                'template': 'emails/reschedule_appointment.html'
+            }
+        }
+
+        config = email_config.get(action_type.lower())
+        if not config:
+            raise ValueError(f"Invalid action type: {action_type}")
+
+        msg = Message(
+            subject=config['subject'],
+            recipients=[recipient_email]
+        )
+        msg.html = render_template(
+            config['template'],
+            appointment_details=appointment_details,
+            admin_name=admin_name,
+            clinic_name="MSU-IIT Clinic",
+            contact_info="mdhs@g.msuiit.edu.ph"
+        )
+
+        mail.send(msg)
+        current_app.logger.info(f"{action_type} email sent to {recipient_email}")
+    except Exception as e:
+        current_app.logger.error(f"Error sending {action_type} email: {e}")

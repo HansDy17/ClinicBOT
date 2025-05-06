@@ -29,7 +29,7 @@ class Appointments(object):
             SELECT COUNT(*) FROM appointments 
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
-            AND status = 'Scheduled'
+            AND status = 'approved'
         """, (user_id,))
         
         existing = cursor.fetchone()[0] > 0
@@ -81,7 +81,7 @@ class Appointments(object):
             FROM appointments 
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
-            AND status = 'Scheduled'
+            AND status = 'pending'
             ORDER BY appointment_date ASC
             LIMIT 1
         """, (user_id,))
@@ -142,7 +142,7 @@ class Appointments(object):
     def create_appointment(self, user_id, user_name, user_email, date, time, purpose):
         """Create a new appointment."""
         if self.has_existing_appointment(user_id):
-            return "You already have an appointment. Please reschedule or cancel it before booking a new one."
+            return "You already have an appointment request. Please reschedule or cancel it before booking a new one."
 
         if self.is_conflict(date, time):
             alternative = self.suggest_alternative_slot(date, time)
@@ -153,7 +153,7 @@ class Appointments(object):
 
         cursor.execute("""
             INSERT INTO appointments (user_id, user_name, user_email, appointment_date, appointment_time, purpose, status)
-            VALUES (%s, %s, %s, %s, %s, %s, 'Scheduled')
+            VALUES (%s, %s, %s, %s, %s, %s, 'pending')
         """, (user_id, user_name, user_email, date, time, purpose))
 
         conn.commit()
@@ -173,7 +173,7 @@ class Appointments(object):
 
         cursor.execute("""
             UPDATE appointments 
-            SET status = 'Cancelled'
+            SET status = 'cancelled'
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
         """, (user_id,))
@@ -182,7 +182,7 @@ class Appointments(object):
         cursor.close()
         conn.close()
 
-        return "Your appointment has been successfully canceled."
+        return "Your appointment request has been successfully canceled."
 
     @classmethod
     def reschedule_appointment(self, user_id, new_date, new_time):
@@ -198,7 +198,7 @@ class Appointments(object):
 
         cursor.execute("""
             UPDATE appointments 
-            SET status = 'Cancelled'
+            SET status = 'cancelled'
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
         """, (user_id,))
@@ -213,11 +213,11 @@ class Appointments(object):
         # Schedule the new appointment
         cursor.execute("""
             INSERT INTO appointments (user_id, appointment_date, appointment_time, status)
-            VALUES (%s, %s, %s, 'Scheduled')
+            VALUES (%s, %s, %s, 'pending')
         """, (user_id, new_date, new_time))
 
         conn.commit()
         cursor.close()
         conn.close()
 
-        return f"Your appointment has been successfully rescheduled to {new_date} at {new_time}."
+        return f"Your appointment request has been successfully rescheduled to {new_date} at {new_time}."
