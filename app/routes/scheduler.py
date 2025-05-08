@@ -16,12 +16,6 @@ def available_slots():
 @appointment_bp.route('/existing_appointment/<string:user_id>', methods=['GET'])
 def get_existing_appointment(user_id):
     """Fetch a user's existing appointment details."""
-    id = getattr(current_user, 'id', None)
-    print(f"User Name: {id}")
-    user = Admin.get_user_data_by_user_id(id)
-    user_id = user['user_id']
-    print(user_id)
-    
     appointment = Appointments.get_existing_appointment(user_id)
 
     if appointment:
@@ -37,7 +31,8 @@ def get_existing_appointment(user_id):
             f"Appointment Details:\n"
             f"- Date: {appointment.get('appointment_date', 'N/A')}\n"
             f"- Time: {appointment.get('appointment_time', 'N/A')}\n"
-            f"- Purpose: {appointment.get('purpose', 'N/A')}"
+            f"- Purpose: {appointment.get('purpose', 'N/A')}\n"
+            f"- Status: {appointment.get('status', 'N/A')}\n"
         )
 
         return jsonify({"appointment": formatted_response}) 
