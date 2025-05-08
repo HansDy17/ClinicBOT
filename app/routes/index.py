@@ -23,7 +23,6 @@ def chatbot_response():
         id = getattr(current_user, 'id', None)
         print(f"User Name: {id}")
         user = Admin.get_user_data_by_user_id(id)
-        print(user)
         user_id = user['user_id']
         user_name = user['user_name']
         user_email = user['user_email']
