@@ -69,7 +69,13 @@
                             <td>{{ staff.full_name }}</td>
                             <td>{{ staff.email }}</td>
                             <td>
-                                <span class="badge badge-primary">{{ staff.role|title }}</span>
+                                <span class="badge 
+                                    {% if staff.role == 'doctor' %}badge-success
+                                    {% elif staff.role == 'nurse' %}badge-info
+                                    {% elif staff.role == 'staff' %}badge-warning
+                                    {% else %}badge-secondary{% endif %}">
+                                    {{ staff.role|title }}
+                                </span>
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
