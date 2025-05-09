@@ -3,6 +3,9 @@ from flask_mail import Message
 from flask_login import login_user, login_required, logout_user, current_user
 from ..import mail
 from ..models.admin_models import Appointment, Admin
+import os
+from werkzeug.utils import secure_filename
+
 
 admin_bp = Blueprint('admin_bp', __name__)
 
@@ -120,3 +123,65 @@ def send_action_email(recipient_email, action_type, appointment_details=None, ad
         current_app.logger.info(f"{action_type} email sent to {recipient_email}")
     except Exception as e:
         current_app.logger.error(f"Error sending {action_type} email: {e}")
+
+@admin_bp.route('/staff_management', methods=['GET'])
+@login_required
+def staff_management():
+    staff_members = Admin.get_all_staff()
+    admin = Admin.get_admin_data_by_username(session['username'])
+    return render_template('staff_management.html', 
+                         staff_members=staff_members,
+                         admin=admin,
+                         roles=['nurse', 'doctor', 'staff'])
+
+@admin_bp.route('/add_staff', methods=['POST'])
+@login_required
+def add_staff():
+    if request.method == 'POST':
+        try:
+            staff_id = request.form['staff_id']
+            full_name = request.form['full_name']
+            email = request.form['email']
+            role = request.form['role']
+            
+            Admin.create_staff(staff_id, full_name, email, role)
+            flash('Staff member added successfully', 'success')
+        except Exception as e:
+            flash(f'Error adding staff: {str(e)}', 'danger')
+            current_app.logger.error(f"Database error: {str(e)}")  # Add logging
+        return redirect(url_for('admin_bp.staff_management'))
+    
+@admin_bp.route('/update_staff', methods=['POST'])
+@login_required
+def update_staff():
+    if request.method == 'POST':
+        try:
+            staff_id = request.form['staff_id']
+            full_name = request.form['full_name']
+            email = request.form['email']
+            role = request.form['role']
+
+            # Get current staff data
+            current_staff = Admin.get_staff_by_id(staff_id)
+            if not current_staff:
+                flash('Staff member not found', 'danger')
+                return redirect(url_for('admin_bp.staff_management'))
+
+            Admin.update_staff(staff_id, full_name, email, role)
+            flash('Staff member updated successfully', 'success')
+        except Exception as e:
+            flash(f'Error updating staff: {str(e)}', 'danger')
+            current_app.logger.error(f"Database error: {str(e)}")  # Add logging
+        return redirect(url_for('admin_bp.staff_management'))
+
+@admin_bp.route('/delete_staff', methods=['POST'])
+@login_required
+def delete_staff():
+    try:
+        staff_id = request.form['staff_id']
+        Admin.delete_staff(staff_id)
+        flash('Staff member deleted successfully', 'success')
+    except Exception as e:
+        flash(f'Error deleting staff: {str(e)}', 'danger')
+        current_app.logger.error(f"Database error: {str(e)}")  # Add logging
+    return redirect(url_for('admin_bp.staff_management'))

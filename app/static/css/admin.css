@@ -4,6 +4,7 @@ body {
     background: linear-gradient(to right, rgb(186, 145, 145), rgb(186, 145, 145), rgb(186, 145, 145));
     font-family: 'Varela Round', sans-serif;
     font-size: 14px;
+    overflow: hidden !important;
 }
 
 /* Table Container */
