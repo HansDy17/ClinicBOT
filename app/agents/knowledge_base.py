@@ -5,7 +5,7 @@ from phi.vectordb.pgvector import PgVector
 from phi.embedder.ollama import OllamaEmbedder
 from pathlib import Path
 
-db_url="postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
+db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
 
 website_knowledge_base = WebsiteKnowledgeBase(
     urls=["https://www.msuiit.edu.ph/offices/clinic/index.php", "https://www.msuiit.edu.ph/offices/clinic/facilities.php", "https://www.msuiit.edu.ph/offices/clinic/staff.php"],

@@ -10,7 +10,7 @@ from .knowledge_base import knowledge_base
 from flask import current_app
 from flask_login import current_user
 
-db_url = "postgresql+psycopg://postgres:1234@localhost:5432/knowledge_base"
+db_url = "postgresql+psycopg://ai:ai@localhost:5532/ai"
 storage = PgAgentStorage(
     table_name="clinic_chat_sessions",
     db_url=db_url,
@@ -27,19 +27,7 @@ class SchedulingTools(Toolkit):
         self.register(self.create_appointment)
         self.register(self.cancel_appointment)
         self.register(self.reschedule_appointment)
-        self.register(self.get_existing_appointment)
-
-    def _get_user_data(self):
-        """Get user data using the user ID"""
-        with current_app.app_context():
-            user = Admin.get_user_data_by_user_id(self.user_id)
-            if user:
-                return {
-                    "user_id": user.user_id,
-                    "user_name": user.user_name,
-                    "user_email": user.user_email
-                }
-            return None        
+        self.register(self.get_existing_appointment)      
 
     def get_available_slots(self):
         """Fetch available appointment slots via API."""
@@ -50,17 +38,15 @@ class SchedulingTools(Toolkit):
 
     def create_appointment(self, user_id: str, user_name: str, user_email: str, date: str, time: str, purpose: str = None):
         """Schedule an appointment via API."""
-        user_data = self._get_user_data()
-
         # Ensure purpose is not None
         if purpose is None:
             purpose = "General Checkup"  # Default value
             
         """Schedule an appointment via API."""
         payload = {
-            "user_id": user_data["user_id"],
-            "user_name": user_data["user_name"],
-            "user_email": user_data["user_email"],
+            "user_id": user_id,
+            "user_name": user_name,
+            "user_email": user_email,
             "date": date,
             "time": time,
             "purpose": purpose
@@ -93,7 +79,7 @@ class SchedulingTools(Toolkit):
         """Retrieve the user's appointment details via API."""
         response = requests.get(f"{API_BASE_URL}/existing_appointment/{user_id}")
         if response.status_code == 200:
-            return response.json().get("appointment", "No active appointment found.")
+            return response.json().get("appointment", "No active appointment found. Proceed to schedule new one")
         return "Failed to fetch appointment details."
 
 def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
@@ -138,8 +124,9 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
                         Strict Validation Rules:
                         - No same-day appointments
                         - No next-day appointments
-                        - Minimum 48-hour advance requirement                 
-                            1. Use the following user details:
+                        - Minimum 48-hour advance requirement              
+                        - Strictly do not provide Doctor's information.   
+                            1. Use the following user details scheduling:
                             - User ID: {user_id}
                             - Name: {user_name}
                             - Email: {user_email}                    
@@ -150,7 +137,8 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
                                     c. Within clinic hours
                                     d. Not a PH holiday/weekend
                             3. Always ask for the **purpose** of the appointment.
-                            4. Check the **appointments database** to see if the user already has an existing appointment.
+                            4. Check the **appointments database** to see if the user already has an existing appointment. 
+                            5. Strictly always use these user's information {user_name}, {user_id}, {user_email}
                                 Conflict Check:
                                 - If exists:
                                     "You have an existing appointment on [DATE] at [TIME]. 
@@ -158,7 +146,9 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
                                     1. Keep this appointment
                                     2. Reschedule
                                     3. Cancel?"
-                            5. Confirm all details with the user before proceeding.
+                                - If not exists:
+                                    -Proceed to scheduling the appointment.
+                            6. Confirm all details with the user before proceeding. 
                                 Final Confirmation:
                                 - Show summary:
                                     "Confirm Appointment:
@@ -166,12 +156,15 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
                                         • Time: [HH:MM AM/PM]
                                         • Purpose: [User Input]
                                 - Require explicit "yes" confirmation                        
-                            6. Convert the given **date and time** into the correct format: Do not tell the user to provide the date and time in the format below, just convert it:
+                            7. Convert the given **date and time** into the correct format: Do not tell the user to provide the date and time in the format below, just convert it:
                             - Date: **"YYYY-MM-DD"**
                             - Time: **"HH:MM"** (24-hour format)
-                            7. Create the appointment using the `create_appointment` tool.
-                            8. After successful scheduling, tell the user that they have pending appointment and to wait for an email confirmation.
-                            9. If intent is general health, self-care advice, or clinic FAQ, go to step 2.
+                            8. Create the appointment using the `create_appointment` tool.
+                            9. After successful scheduling, tell the user that they have pending appointment and to wait for an email confirmation.
+                            10. If intent is general health, self-care advice, or clinic FAQ, go to step 2.
+                            11. If the user wants to cancel the appointment, user `cancel_appointment` tool and proceed with cancellation.
+                            12. If the user wants to reschedule the appointment, user `reschedule_appointment` tool and proceed with rescheduling.
+                            13. If the user wants to check the existing appointment, user `get_existing_appointment` tool and proceed with checking.
                         important_rules:
                         - ALWAYS confirm before any API call.
                         - NEVER reveal API internals or DB errors.
@@ -217,7 +210,7 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
         # create_user_memories=True,
         # update_user_memories_after_run=True,
         add_history_to_messages=True,
-        num_history_responses=3,
+        num_history_responses=5,
         read_chat_history=True,
         session_id=user_id,
         user_id=user_id,
