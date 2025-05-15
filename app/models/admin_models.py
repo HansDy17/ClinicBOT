@@ -13,12 +13,47 @@ class DatabaseManager:
     @staticmethod
     def get_db_connection():
         """Establish a connection to MySQL database."""
-        return mysql.connector.connect(
+        conn = mysql.connector.connect(
             host=getenv('MYSQL_HOST'),
             user=getenv('MYSQL_USERNAME'),
             password=getenv('MYSQL_PASSWORD'),
             database=getenv('MYSQL_NAME')
         )
+        DatabaseManager._ensure_staff_table_exists(conn)
+        return conn
+    
+    @staticmethod
+    def _ensure_staff_table_exists(conn):
+        """Ensure the staff table exists, create it if not."""
+        cursor = conn.cursor()
+        
+        # Check if table exists
+        cursor.execute("""
+            SELECT COUNT(*) 
+            FROM information_schema.tables 
+            WHERE table_schema = %s AND table_name = 'staff'
+        """, (getenv('MYSQL_NAME'),))
+        
+        if cursor.fetchone()[0] == 0:
+            # Create the table if it doesn't exist
+            cursor.execute("""
+                CREATE TABLE staff (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    staff_id VARCHAR(50) NOT NULL UNIQUE,
+                    full_name VARCHAR(100) NOT NULL,
+                    email VARCHAR(100) NOT NULL UNIQUE,
+                    role VARCHAR(50) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    INDEX (staff_id),
+                    INDEX (email)
+                )
+            """)
+            conn.commit()
+            print("Created staff table")
+        
+        cursor.close()
+
     
 class User(UserMixin):
     def __init__(self, user_id=None, user_name=None, user_email=None):

@@ -436,6 +436,10 @@ body,html{
     content: '.';
     animation: dots 1s steps(5, end) infinite;
 }
+/* Add this to your CSS */
+.msg_cotainer.thinking {
+    background-color: rgb(170, 168, 168) !important;  /* Light gray background */
+}
 
 @keyframes dots {
     0%, 20% { content: '.'; }
