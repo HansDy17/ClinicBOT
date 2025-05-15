@@ -5,6 +5,7 @@ from phi.storage.agent.postgres import PgAgentStorage
 import holidays
 from datetime import datetime, timedelta
 import requests
+import os
 from ..models.admin_models import Admin
 from .knowledge_base import knowledge_base
 from flask import current_app
@@ -79,7 +80,7 @@ class SchedulingTools(Toolkit):
         """Retrieve the user's appointment details via API."""
         response = requests.get(f"{API_BASE_URL}/existing_appointment/{user_id}")
         if response.status_code == 200:
-            return response.json().get("appointment", "No active appointment found. Proceed to schedule new one")
+            return response.json().get("appointment", "No active appointment found. Proceed to schedule a new one.")
         return "Failed to fetch appointment details."
 
 def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:

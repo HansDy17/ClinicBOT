@@ -152,6 +152,68 @@ class Admin(UserMixin):
         cursor.close()
         conn.close()     
 
+    @classmethod
+    def get_all_staff(cls):
+        """Get all staff members"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM staff")
+        staff = cursor.fetchall()
+        cursor.close()
+        conn.close()
+        return staff
+
+    @classmethod
+    def get_staff_by_id(cls, staff_id):
+        """Get staff member by ID number"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute("SELECT * FROM staff WHERE staff_id = %s", (staff_id,))
+        staff = cursor.fetchone()
+        cursor.close()
+        conn.close()
+        return staff
+
+    @classmethod
+    def create_staff(cls, id_number, full_name, email, role):
+        """Create new staff member"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            INSERT INTO staff (staff_id, full_name, email, role)
+            VALUES (%s, %s, %s, %s)
+        """, (id_number, full_name, email, role))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @classmethod
+    def update_staff(cls, staff_id, full_name, email, role):
+        """Update staff member"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE staff 
+            SET 
+                full_name = %s, 
+                email = %s, 
+                role = %s 
+            WHERE staff_id = %s
+        """, (full_name, email, role, staff_id))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
+    @classmethod
+    def delete_staff(cls, staff_id):
+        """Delete staff member"""
+        conn = DatabaseManager.get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM staff WHERE staff_id = %s", (staff_id,))
+        conn.commit()
+        cursor.close()
+        conn.close()
+
 class Appointment:
     def __init__(self, appointment_data=None):
         """Initialize with appointment data dictionary"""

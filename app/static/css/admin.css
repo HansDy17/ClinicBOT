@@ -4,6 +4,7 @@ body {
     background: linear-gradient(to right, rgb(186, 145, 145), rgb(186, 145, 145), rgb(186, 145, 145));
     font-family: 'Varela Round', sans-serif;
     font-size: 14px;
+    overflow: hidden !important;
 }
 
 /* Table Container */
@@ -354,4 +355,30 @@ table.table .avatar {
         color: black !important;
         padding: 10px !important;
     }
+}
+
+/* Role Badges */
+.badge-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.badge-primary {
+    background-color: #007bff;
+    color: white;
 }
