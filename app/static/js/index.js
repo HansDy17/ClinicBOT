@@ -41,8 +41,9 @@ $("#messageArea").on("submit", function (event) {
 
     // Add thinking message with unique ID
     var thinkingId = 'thinking-' + Date.now();
+// Modify the thinking message creation in your JavaScript
     var thinkingHtml = '<div class="d-flex justify-content-start mb-4" id="' + thinkingId + '">' +
-        '<div class="msg_cotainer"><span class="thinking-dots">Thinking</span>' + '</div></div>';
+        '<div class="msg_cotainer thinking"><span class="thinking-dots">Thinking</span>' + '</div></div>';
     
     $("#messageFormeight").append(thinkingHtml);
     scrollToBottom();
