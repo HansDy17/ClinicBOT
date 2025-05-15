@@ -125,7 +125,7 @@ def get_agent(user_id: str, user_name: str, user_email: str) -> Agent:
                         - No same-day appointments
                         - No next-day appointments
                         - Minimum 48-hour advance requirement              
-                        - Strictly do not provide Doctor's information.   
+                        - Strictly do not provide Doctor's information.
                             1. Use the following user details scheduling:
                             - User ID: {user_id}
                             - Name: {user_name}

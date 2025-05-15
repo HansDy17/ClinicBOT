@@ -29,7 +29,7 @@ class Appointments(object):
             SELECT COUNT(*) FROM appointments 
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
-            AND status = 'approved'
+            AND status != 'cancelled'
         """, (user_id,))
         
         existing = cursor.fetchone()[0] > 0
@@ -77,7 +77,7 @@ class Appointments(object):
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT appointment_date, appointment_time, purpose
+            SELECT appointment_date, appointment_time, purpose, status
             FROM appointments 
             WHERE user_id = %s 
             AND appointment_date >= CURDATE()
@@ -144,9 +144,9 @@ class Appointments(object):
         if self.has_existing_appointment(user_id):
             return "You already have an appointment request. Please reschedule or cancel it before booking a new one."
 
-        if self.is_conflict(date, time):
-            alternative = self.suggest_alternative_slot(date, time)
-            return f"That slot is already booked. Suggested alternative: {alternative}"
+        # if self.is_conflict(date, time):
+        #     alternative = self.suggest_alternative_slot(date, time)
+        #     return f"That slot is already booked. Suggested alternative: {alternative}"
 
         conn = self.get_db_connection()
         cursor = conn.cursor()
