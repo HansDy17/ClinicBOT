@@ -18,7 +18,7 @@
             <p>Sign in to continue to your account</p>
         </div>
         
-        <form id="loginForm" method="POST" action="{{ url_for('auth_bp.login') }}">
+        <form id="loginForm" method="POST" action="">
             
             <!-- Flash messages -->
             <div class="flash-messages">
@@ -68,7 +68,7 @@
             </button>
 
             <div class="oauth-providers">
-                <a href="{{ url_for('google.login') }}" class="google-login-button">
+                <a href="" class="google-login-button">
                     <img src="{{ url_for('static', filename='img/Google-Symbol.png') }}">
                     Login with Google
                 </a>

@@ -1,7 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session, Blueprint, jsonify, make_response, current_app, flash
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash, generate_password_hash
-from flask_dance.contrib.google import google
 import logging
 from datetime import timedelta
 from ..models.admin_models import Admin

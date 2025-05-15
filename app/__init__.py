@@ -7,7 +7,6 @@ from .models.admin_models import Admin
 import os
 from dotenv import load_dotenv
 from app.config import DB_USERNAME, DB_PASSWORD, DB_NAME, DB_HOST, SECRET_KEY, BOOTSTRAP_SERVE_LOCAL, OPENAI_API_KEY, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD, MAIL_DEFAULT_SENDER, GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET
-from flask_dance.contrib.google import make_google_blueprint, google
 
 load_dotenv()
 mail = Mail()
@@ -34,16 +33,7 @@ def create_app(test_config=None):
         MAIL_USERNAME=MAIL_USERNAME,
         MAIL_PASSWORD=MAIL_PASSWORD,
         MAIL_DEFAULT_SENDER=MAIL_USERNAME,
-    )
-        # Add Google OAuth configuration
-    google_bp = make_google_blueprint(
-        client_id=GOOGLE_CLIENT_ID,
-        client_secret=GOOGLE_CLIENT_SECRET,
-        scope=["profile", "email"],
-        # Restrict to your university domain
-        hosted_domain="msuiit.edu.ph",  # Change to your university domain
-        redirect_to="auth_bp.google_login"
-    )    
+    )  
 
     # Initialize Login Manager
     login_manager = LoginManager()
@@ -59,7 +49,6 @@ def create_app(test_config=None):
     from .routes.scheduler import appointment_bp
     from .routes.admin import admin_bp
 
-    app.register_blueprint(google_bp, url_prefix="/login")
     app.register_blueprint(index_bp, url_prefix='/')
     app.register_blueprint(auth_bp, url_prefix='/')
     app.register_blueprint(appointment_bp, url_prefix='/')
